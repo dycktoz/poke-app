@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poke_app/core/theme/app_theme.dart';
+import 'package:poke_app/presentation/providers/theme/theme_provider.dart';
 
-void main() => runApp(const MyApp());
+import 'core/router/app_router.dart';
 
-class MyApp extends StatelessWidget {
+void main() {
+  runApp(const ProviderScope(
+    child: MyApp(),
+  ));
+}
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appThemeState = ref.watch(appThemeStateNotifier);
+    return MaterialApp.router(
       title: 'Material App',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Material App Bar'),
-        ),
-        body: const Center(
-          child: Text('Hello World'),
-        ),
-      ),
+      routerConfig: appRouter,
+      theme: AppTheme().getTheme(),
+      darkTheme: AppTheme().getDarkTheme(),
+      themeMode:
+          appThemeState.isDarkModeEnabled ? ThemeMode.dark : ThemeMode.light,
     );
   }
 }
