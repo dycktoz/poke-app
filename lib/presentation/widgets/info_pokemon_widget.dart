@@ -15,8 +15,9 @@ class InfoPokemonWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final weight = ((pokemon.weigh ?? 0) * 0.1);
     final height = ((pokemon.height ?? 0) * 0.1);
+    final theme = Theme.of(context);
     return ColoredBox(
-      color: Colors.black,
+      color: theme.scaffoldBackgroundColor,
       child: Column(
         children: [
           Container(
@@ -24,19 +25,24 @@ class InfoPokemonWidget extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _DataContent(
-                  value: height.toString(),
-                  meterage: 'M',
-                  title: 'Height',
+                Flexible(
+                  child: _DataContent(
+                    value: height.toString(),
+                    meterage: 'M',
+                    title: 'Height',
+                  ),
                 ),
-                CircleAvatar(
-                  child: Image.network(
-                      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/2.gif'),
+                Flexible(
+                  child: CircleAvatar(
+                    child: Image.network(pokemon.gifDefault ?? ''),
+                  ),
                 ),
-                _DataContent(
-                  value: weight.toString(),
-                  meterage: 'Kg',
-                  title: 'Weight',
+                Flexible(
+                  child: _DataContent(
+                    value: weight.toString(),
+                    meterage: 'Kg',
+                    title: 'Weight',
+                  ),
                 ),
               ],
             ),
@@ -72,33 +78,69 @@ class _TabsPages extends ConsumerWidget {
           TabBar(tabs: kTabs),
           SizedBox(
             width: size.width,
-            height: size.height * 0.4,
+            height: size.height * 0.3,
             child: TabBarView(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: GradientCardWidget(
                       child: SizedBox(
-                          // child: Column(
-                          //   mainAxisSize: MainAxisSize.min,
-                          //   children: pokemon.stats != null
-                          //       ? pokemon.stats!
-                          //           .map(
-                          //             (e) => BarStats(
-                          //               title: e?.stat?.name,
-                          //               value: e?.baseStat,
-                          //             ),
-                          //           )
-                          //           .toList()
-                          //       : [],
-                          // ),
-                          )),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BarStats(
+                          title: 'hp',
+                          value: pokemon.hpStat,
+                        ),
+                        BarStats(
+                          title: 'Attack',
+                          value: pokemon.attackStat,
+                        ),
+                        BarStats(
+                          title: 'Defense',
+                          value: pokemon.defenseStat,
+                        ),
+                        BarStats(
+                          title: 'Sp atk',
+                          value: pokemon.specialAttackStat,
+                        ),
+                        BarStats(
+                          title: 'Sp def',
+                          value: pokemon.specialDefenseStat,
+                        ),
+                        BarStats(
+                          title: 'Speed',
+                          value: pokemon.speedStat,
+                        )
+                      ],
+                    ),
+                  )),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: GradientCardWidget(
-                    child: Center(
-                      child: Text('hola'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 8.0, // Espacio horizontal entre chips
+                          runSpacing: 8.0, // Espacio vertical entre chips
+                          children: [
+                            Chip(
+                              label: Text(
+                                pokemon.move1 ?? '',
+                              ),
+                            ),
+                            Chip(label: Text(pokemon.move2 ?? '')),
+                            Chip(label: Text(pokemon.move3 ?? '')),
+                            Chip(label: Text(pokemon.move4 ?? '')),
+                            Chip(label: Text(pokemon.move5 ?? '')),
+                            Chip(label: Text(pokemon.move6 ?? '')),
+                            Chip(label: Text(pokemon.move7 ?? '')),
+                            Chip(label: Text(pokemon.move8 ?? '')),
+                            Chip(label: Text(pokemon.move9 ?? '')),
+                            Chip(label: Text(pokemon.move10 ?? '')),
+                          ]),
                     ),
                   ),
                 ),
@@ -118,12 +160,19 @@ class BarStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Flexible(flex: 2, child: Text(title ?? '')),
-          Flexible(flex: 2, child: Text(value.toString())),
+          Flexible(
+              flex: 2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [Text(title ?? ''), Text(value.toString())],
+              )),
+          const SizedBox(
+            width: 20,
+          ),
           Expanded(
             flex: 4,
             child: LinearProgressIndicator(
@@ -149,18 +198,32 @@ class _DataContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(value),
+            Text(
+              double.parse(value).toStringAsFixed(3),
+              style: theme.textTheme.titleLarge!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(
               width: 4,
             ),
-            Text(meterage),
+            Text(
+              meterage,
+              style: theme.textTheme.titleLarge!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-        Text(title),
+        Text(
+          title,
+          style: theme.textTheme.titleMedium!
+              .copyWith(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }

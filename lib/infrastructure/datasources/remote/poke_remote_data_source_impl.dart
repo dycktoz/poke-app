@@ -35,8 +35,6 @@ class PokeRemoteDataSourceImpl extends PokeRemoteDataSource {
       }
     } on DioException catch (e) {
       // Capturamos detalles de la excepción y los imprimimos para depuración
-      print(
-          'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}');
       throw Exception(
           'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}');
     } catch (e) {
@@ -57,8 +55,6 @@ class PokeRemoteDataSourceImpl extends PokeRemoteDataSource {
       return pokemon;
     } on DioException catch (e) {
       // Capturamos detalles de la excepción y los imprimimos para depuración
-      print(
-          'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}');
       throw Exception(
           'DioException: ${e.response?.statusCode} - ${e.response?.statusMessage}');
     } catch (e) {

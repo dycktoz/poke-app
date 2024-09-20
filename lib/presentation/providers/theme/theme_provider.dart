@@ -6,7 +6,7 @@ final appThemeStateNotifier = ChangeNotifierProvider(
 );
 
 class AppThemeState extends ChangeNotifier {
-  var isDarkModeEnabled = false;
+  var isDarkModeEnabled = true;
   void setLightTheme() {
     isDarkModeEnabled = false;
     notifyListeners();

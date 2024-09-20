@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:poke_app/presentation/providers/poke_providers.dart';
-import 'package:poke_app/presentation/providers/storage/favorite_pokemons_provider.dart';
-import 'package:poke_app/presentation/providers/storage/is_favorite_provider.dart';
-import 'package:poke_app/presentation/providers/storage/local_storage_provider.dart';
-import 'package:poke_app/presentation/providers/theme/theme_provider.dart';
+import 'package:poke_app/domain/entities/pokemon.dart';
+import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/side_menu.dart';
+
+import '../providers/providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -56,130 +55,195 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final pokeList = ref.watch(pokeListProvider);
-
+    final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
     return Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(
-        actions: [IconButton(onPressed: () {}, icon: const CircleAvatar())],
-      ),
       drawer: SideMenu(
         scaffoldKey: scaffoldKey,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Column(
-          children: [
-            const SizedBox(
-              child: Text(
-                'Encuentra tu Pokemon',
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Form(
-                key: _formKey,
-                child: TextFormField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: 'Escribe algo...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide(color: Colors.grey, width: 2.0),
+      body: SafeArea(
+        child: isLastPage
+            ? Container()
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: CustomScrollView(
+                  controller: scrollcontroller,
+                  slivers: [
+                    SliverAppBar(
+                      backgroundColor: theme.scaffoldBackgroundColor,
+                      expandedHeight: size.height * 0.05,
+                      centerTitle: true,
+                      actions: [
+                        CircleAvatar(
+                          child: Image.network(
+                              'https://i.pinimg.com/originals/46/e7/7e/46e77e3db6a6cdce8c63a9de331f31ff.png'),
+                        )
+                      ],
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Este campo no puede estar vacío';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                controller: scrollcontroller,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Número de columnas (2 columnas)
-                  crossAxisSpacing: 10.0, // Espacio horizontal entre elementos
-                  mainAxisSpacing: 10.0, // Espacio vertical entre elementos
-                  childAspectRatio:
-                      1.0, // Relación de aspecto para ajustar las imágenes (ancho/alto)
-                ),
-                itemCount: pokeList.length,
-                itemBuilder: (context, index) {
-                  final pokemon = pokeList[index];
-                  final isFavoriteFuture =
-                      ref.watch(isFavoriteProvider(pokemon));
-                  return InkWell(
-                    onTap: () {
-                      context.push('/movie/${index + 1}');
-                    },
-                    child: Card(
-                      color: Colors.amber,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                              right: 4,
-                              child: IconButton(
-                                onPressed: () async {
-                                  await ref
-                                      .read(favoritePokemonsProvider.notifier)
-                                      .toggleFavorite(pokemon);
-                                  ref.invalidate(isFavoriteProvider(pokemon));
-                                },
-                                icon: isFavoriteFuture.when(
-                                  data: (isFav) => isFav
-                                      ? const Icon(
-                                          Icons.favorite_rounded,
-                                          color: Colors.red,
-                                        )
-                                      : const Icon(Icons.favorite_border),
-                                  error: (_, __) => throw UnimplementedError(),
-                                  loading: () =>
-                                      const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Image.network(
-                              'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${index + 1}.png',
-                            ),
-                          ),
-                          Positioned(
-                            left: 8,
-                            bottom: 8,
-                            child: Text(
-                              pokemon.name,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            right: 8,
-                            bottom: 4,
-                            child: IconButton(
-                                iconSize: 32,
-                                padding: EdgeInsets.zero,
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons.arrow_circle_right_outlined,
-                                )),
-                          )
-                        ],
+                    const SliverToBoxAdapter(
+                      child: SizedBox(
+                        child: Text(
+                          'Encuentra tu Pokemon',
+                          style: TextStyle(
+                              fontSize: 40, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  );
-                },
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Form(
+                          key: _formKey,
+                          child: TextFormField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.search),
+                              hintText: 'Buscar',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 2.0),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Este campo no puede estar vacío';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final pokemon = pokeList[index];
+
+                          return CardPoke(index, pokemon);
+                        },
+                        childCount: pokeList.length,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.0,
+                        mainAxisSpacing: 12.0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
+    );
+  }
+}
+
+class CardPoke extends ConsumerStatefulWidget {
+  const CardPoke(this.index, this.pokemon, {super.key});
+  final int index;
+  final Pokemon pokemon;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _CardPokeState();
+}
+
+class _CardPokeState extends ConsumerState<CardPoke> {
+  String capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isFavoriteFuture = ref.watch(isFavoriteProvider(widget.pokemon));
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: () {
+        context.push('/movie/${widget.index + 1}');
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: CustomGradient(
+          colors: const [Colors.blue, Color.fromARGB(255, 69, 69, 61)],
+          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          stops: const [
+            0.6,
+            1.0,
           ],
+          child: Stack(
+            children: [
+              const CustomGradient(
+                colors: [
+                  Colors.transparent,
+                  Color.fromARGB(50, 105, 104, 101),
+                ],
+                end: Alignment.topLeft,
+                begin: Alignment.bottomRight,
+                stops: [
+                  0.8,
+                  1.0,
+                ],
+              ),
+              Positioned(
+                left: 8,
+                top: 8,
+                child: isFavoriteFuture.when(
+                  data: (isFav) => isFav
+                      ? const Icon(Icons.favorite_rounded, color: Colors.red)
+                      : const Icon(Icons.favorite_border),
+                  error: (_, __) => throw UnimplementedError(),
+                  loading: () =>
+                      const CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Image.network(
+                    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${widget.index + 1}.png',
+                    errorBuilder: (BuildContext context, Object error,
+                        StackTrace? stackTrace) {
+                  return const Center(
+                    child: Text(
+                      'Error al cargar la imagen',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }, loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child; // La imagen ya está cargada
+                  }
+                  return Center(
+                      child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                        : null,
+                  ));
+                }),
+              ),
+              Positioned(
+                left: 8,
+                bottom: 8,
+                child: Text(
+                  capitalize(widget.pokemon.name),
+                  style: theme.textTheme.titleLarge!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Positioned(
+                right: 8,
+                bottom: 8,
+                child: Icon(
+                  Icons.arrow_circle_right_outlined,
+                  size: 32,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

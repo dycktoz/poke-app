@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
-import 'package:poke_app/presentation/providers/poke_info_provider.dart';
-import 'package:poke_app/presentation/providers/storage/favorite_pokemons_provider.dart';
 import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/info_pokemon_widget.dart';
-
-import '../providers/storage/is_favorite_provider.dart';
+import 'package:poke_app/presentation/providers/providers.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({
@@ -60,15 +57,19 @@ class _CustomSliverAppbar extends ConsumerWidget {
   const _CustomSliverAppbar({required this.pokemon});
 
   final Pokemon pokemon;
+  String capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavoriteFuture = ref.watch(isFavoriteProvider(pokemon));
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
     return SliverAppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       expandedHeight: size.height * 0.5,
-      foregroundColor: Colors.white,
       actions: [
         IconButton(
           onPressed: () async {
@@ -92,21 +93,42 @@ class _CustomSliverAppbar extends ConsumerWidget {
         )
       ],
       title: Text(
-        pokemon.name,
-        style: TextStyle(fontSize: 20),
+        capitalize(
+          pokemon.name,
+        ), // Capitaliza la primera letra
+        style: theme.textTheme.headlineLarge!
+            .copyWith(fontWeight: FontWeight.bold),
         textAlign: TextAlign.end,
       ),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        titlePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         background: Padding(
             padding: EdgeInsets.fromLTRB(
                 8, size.height * 0.15, 8, size.height * 0.05),
             child: GradientCardWidget(
               child: Center(
-                child: Image.network(
-                  pokemon.frontDefault ?? '',
-                  fit: BoxFit.contain,
-                ),
+                child: Image.network(pokemon.frontDefault ?? '',
+                    fit: BoxFit.contain, errorBuilder: (BuildContext context,
+                        Object error, StackTrace? stackTrace) {
+                  return const Center(
+                    child: Text(
+                      'Error al cargar la imagen',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }, loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child; // La imagen ya está cargada
+                  }
+                  return Center(
+                      child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 1)
+                        : null,
+                  ));
+                }),
               ),
             )),
       ),
