@@ -4,26 +4,26 @@
 
 import 'dart:convert';
 
-PokeListResponse pokeListFromJson(String str) =>
-    PokeListResponse.fromJson(json.decode(str));
+PokeListResponseModel pokeListFromJson(String str) =>
+    PokeListResponseModel.fromJson(json.decode(str));
 
-String pokeListToJson(PokeListResponse data) => json.encode(data.toJson());
+String pokeListToJson(PokeListResponseModel data) => json.encode(data.toJson());
 
-class PokeListResponse {
+class PokeListResponseModel {
   final int count;
   final String next;
   final dynamic previous;
   final List<Result> results;
 
-  PokeListResponse({
+  PokeListResponseModel({
     required this.count,
     required this.next,
     required this.previous,
     required this.results,
   });
 
-  factory PokeListResponse.fromJson(Map<String, dynamic> json) =>
-      PokeListResponse(
+  factory PokeListResponseModel.fromJson(Map<String, dynamic> json) =>
+      PokeListResponseModel(
         count: json["count"],
         next: json["next"],
         previous: json["previous"],

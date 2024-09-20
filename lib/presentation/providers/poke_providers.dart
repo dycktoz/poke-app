@@ -19,9 +19,10 @@ class PokeListNotifier extends StateNotifier<List<Pokemon>> {
   int currentPage = 1;
   PokeCallback fetchMorePoke;
 
-  Future<void> loadNextPage() async {
+  Future<List<Pokemon>> loadNextPage() async {
     final List<Pokemon> pokeList = await fetchMorePoke(page: currentPage);
     state = [...state, ...pokeList];
     currentPage++;
+    return pokeList;
   }
 }
