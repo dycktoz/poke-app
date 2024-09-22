@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
-import 'package:poke_app/presentation/providers/poke_repository_provider.dart';
+import 'package:poke_app/presentation/providers/repository/poke_repository_provider.dart';
 
 final pokeInfoProvider =
     StateNotifierProvider<PokeMapNotifier, Map<String, Pokemon>>(

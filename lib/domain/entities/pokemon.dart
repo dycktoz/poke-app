@@ -6,6 +6,7 @@ part 'pokemon.g.dart';
 class Pokemon {
   Pokemon({
     required this.name,
+    required this.isFav,
     this.frontDefault,
     this.height,
     this.weigh,
@@ -29,6 +30,7 @@ class Pokemon {
   });
   Id isarId = Isar.autoIncrement;
   final String name;
+  final bool isFav;
   final String? frontDefault;
   final String? gifDefault;
   final int? height;

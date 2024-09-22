@@ -5,6 +5,7 @@ import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/side_menu.dart';
 
+import '../../core/router/app_router.dart';
 import '../providers/providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     scrollcontroller.addListener(
       () {
         if ((scrollcontroller.position.pixels + 100) >=
@@ -150,7 +152,15 @@ class CardPoke extends ConsumerStatefulWidget {
 }
 
 class _CardPokeState extends ConsumerState<CardPoke> {
-  String capitalize(String text) {
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   setState(() {
+  //     refreshScreen();
+  //   });
+  // }
+
+  String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
@@ -158,6 +168,7 @@ class _CardPokeState extends ConsumerState<CardPoke> {
   @override
   Widget build(BuildContext context) {
     final isFavoriteFuture = ref.watch(isFavoriteProvider(widget.pokemon));
+
     final theme = Theme.of(context);
     return InkWell(
       onTap: () {
@@ -229,7 +240,7 @@ class _CardPokeState extends ConsumerState<CardPoke> {
                 left: 8,
                 bottom: 8,
                 child: Text(
-                  capitalize(widget.pokemon.name),
+                  _capitalize(widget.pokemon.name),
                   style: theme.textTheme.titleLarge!
                       .copyWith(fontWeight: FontWeight.bold),
                 ),

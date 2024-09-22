@@ -2,7 +2,8 @@ import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/infrastructure/models/pokemon_info_response_model.dart';
 
 class PokemonMapper {
-  static Pokemon pokemonToEntity(String name) => Pokemon(name: name);
+  static Pokemon pokemonToEntity(String name) =>
+      Pokemon(name: name, isFav: false);
 
   static Pokemon pokemonInfoToEntity(PokemonInfoResponseModel pokemonInfo) =>
       Pokemon(
@@ -29,6 +30,7 @@ class PokemonMapper {
         move8: pokemonInfo.moves[7].move.name ?? 'snore',
         move9: pokemonInfo.moves[8].move.name ?? 'substitute',
         move10: pokemonInfo.moves[9].move.name ?? 'special-defence',
+        isFav: true,
 
         // stats: pokemonInfo.stats,
       );
