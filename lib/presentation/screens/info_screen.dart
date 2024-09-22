@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:poke_app/core/router/app_router.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/info_pokemon_widget.dart';
@@ -76,7 +78,10 @@ class _CustomSliverAppbar extends ConsumerWidget {
             await ref
                 .read(favoritePokemonsProvider.notifier)
                 .toggleFavorite(pokemon);
+
             ref.invalidate(isFavoriteProvider(pokemon));
+            ref.invalidate(pokeListProvider);
+            ref.read(pokeListProvider.notifier).loadNextPage();
           },
           icon: isFavoriteFuture.when(
             data: (isFav) => isFav

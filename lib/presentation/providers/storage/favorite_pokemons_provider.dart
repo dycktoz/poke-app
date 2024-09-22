@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/domain/repositories/local_storage_repository.dart';
+import 'package:poke_app/presentation/providers/providers.dart';
 import 'package:poke_app/presentation/providers/storage/local_storage_provider.dart';
 
 final favoritePokemonsProvider =
@@ -13,14 +14,14 @@ final favoritePokemonsProvider =
 );
 
 class StoragePokemonsNotifier extends StateNotifier<Map<int, Pokemon>> {
+  StoragePokemonsNotifier({required this.localStorageRepository}) : super({});
+
   int page = 0;
   final LocalStorageRepository localStorageRepository;
 
-  StoragePokemonsNotifier({required this.localStorageRepository}) : super({});
-
   Future<List<Pokemon>> loadNextPage() async {
     final pokemons =
-        await localStorageRepository.loadPokemons(offset: page * 10);
+        await localStorageRepository.loadPokemons(offset: page * 10, limit: 20);
     page++;
     final tempPokemonsMap = <int, Pokemon>{};
     for (final poke in pokemons) {

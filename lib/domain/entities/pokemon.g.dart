@@ -47,78 +47,83 @@ const PokemonSchema = CollectionSchema(
       name: r'hpStat',
       type: IsarType.long,
     ),
-    r'move1': PropertySchema(
+    r'isFav': PropertySchema(
       id: 6,
+      name: r'isFav',
+      type: IsarType.bool,
+    ),
+    r'move1': PropertySchema(
+      id: 7,
       name: r'move1',
       type: IsarType.string,
     ),
     r'move10': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'move10',
       type: IsarType.string,
     ),
     r'move2': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'move2',
       type: IsarType.string,
     ),
     r'move3': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'move3',
       type: IsarType.string,
     ),
     r'move4': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'move4',
       type: IsarType.string,
     ),
     r'move5': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'move5',
       type: IsarType.string,
     ),
     r'move6': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'move6',
       type: IsarType.string,
     ),
     r'move7': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'move7',
       type: IsarType.string,
     ),
     r'move8': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'move8',
       type: IsarType.string,
     ),
     r'move9': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'move9',
       type: IsarType.string,
     ),
     r'name': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'name',
       type: IsarType.string,
     ),
     r'specialAttackStat': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'specialAttackStat',
       type: IsarType.long,
     ),
     r'specialDefenseStat': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'specialDefenseStat',
       type: IsarType.long,
     ),
     r'speedStat': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'speedStat',
       type: IsarType.long,
     ),
     r'weigh': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'weigh',
       type: IsarType.long,
     )
@@ -231,21 +236,22 @@ void _pokemonSerialize(
   writer.writeString(offsets[3], object.gifDefault);
   writer.writeLong(offsets[4], object.height);
   writer.writeLong(offsets[5], object.hpStat);
-  writer.writeString(offsets[6], object.move1);
-  writer.writeString(offsets[7], object.move10);
-  writer.writeString(offsets[8], object.move2);
-  writer.writeString(offsets[9], object.move3);
-  writer.writeString(offsets[10], object.move4);
-  writer.writeString(offsets[11], object.move5);
-  writer.writeString(offsets[12], object.move6);
-  writer.writeString(offsets[13], object.move7);
-  writer.writeString(offsets[14], object.move8);
-  writer.writeString(offsets[15], object.move9);
-  writer.writeString(offsets[16], object.name);
-  writer.writeLong(offsets[17], object.specialAttackStat);
-  writer.writeLong(offsets[18], object.specialDefenseStat);
-  writer.writeLong(offsets[19], object.speedStat);
-  writer.writeLong(offsets[20], object.weigh);
+  writer.writeBool(offsets[6], object.isFav);
+  writer.writeString(offsets[7], object.move1);
+  writer.writeString(offsets[8], object.move10);
+  writer.writeString(offsets[9], object.move2);
+  writer.writeString(offsets[10], object.move3);
+  writer.writeString(offsets[11], object.move4);
+  writer.writeString(offsets[12], object.move5);
+  writer.writeString(offsets[13], object.move6);
+  writer.writeString(offsets[14], object.move7);
+  writer.writeString(offsets[15], object.move8);
+  writer.writeString(offsets[16], object.move9);
+  writer.writeString(offsets[17], object.name);
+  writer.writeLong(offsets[18], object.specialAttackStat);
+  writer.writeLong(offsets[19], object.specialDefenseStat);
+  writer.writeLong(offsets[20], object.speedStat);
+  writer.writeLong(offsets[21], object.weigh);
 }
 
 Pokemon _pokemonDeserialize(
@@ -261,21 +267,22 @@ Pokemon _pokemonDeserialize(
     gifDefault: reader.readStringOrNull(offsets[3]),
     height: reader.readLongOrNull(offsets[4]),
     hpStat: reader.readLongOrNull(offsets[5]),
-    move1: reader.readStringOrNull(offsets[6]),
-    move10: reader.readStringOrNull(offsets[7]),
-    move2: reader.readStringOrNull(offsets[8]),
-    move3: reader.readStringOrNull(offsets[9]),
-    move4: reader.readStringOrNull(offsets[10]),
-    move5: reader.readStringOrNull(offsets[11]),
-    move6: reader.readStringOrNull(offsets[12]),
-    move7: reader.readStringOrNull(offsets[13]),
-    move8: reader.readStringOrNull(offsets[14]),
-    move9: reader.readStringOrNull(offsets[15]),
-    name: reader.readString(offsets[16]),
-    specialAttackStat: reader.readLongOrNull(offsets[17]),
-    specialDefenseStat: reader.readLongOrNull(offsets[18]),
-    speedStat: reader.readLongOrNull(offsets[19]),
-    weigh: reader.readLongOrNull(offsets[20]),
+    isFav: reader.readBool(offsets[6]),
+    move1: reader.readStringOrNull(offsets[7]),
+    move10: reader.readStringOrNull(offsets[8]),
+    move2: reader.readStringOrNull(offsets[9]),
+    move3: reader.readStringOrNull(offsets[10]),
+    move4: reader.readStringOrNull(offsets[11]),
+    move5: reader.readStringOrNull(offsets[12]),
+    move6: reader.readStringOrNull(offsets[13]),
+    move7: reader.readStringOrNull(offsets[14]),
+    move8: reader.readStringOrNull(offsets[15]),
+    move9: reader.readStringOrNull(offsets[16]),
+    name: reader.readString(offsets[17]),
+    specialAttackStat: reader.readLongOrNull(offsets[18]),
+    specialDefenseStat: reader.readLongOrNull(offsets[19]),
+    speedStat: reader.readLongOrNull(offsets[20]),
+    weigh: reader.readLongOrNull(offsets[21]),
   );
   object.isarId = id;
   return object;
@@ -301,7 +308,7 @@ P _pokemonDeserializeProp<P>(
     case 5:
       return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
@@ -321,14 +328,16 @@ P _pokemonDeserializeProp<P>(
     case 15:
       return (reader.readStringOrNull(offset)) as P;
     case 16:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 18:
       return (reader.readLongOrNull(offset)) as P;
     case 19:
       return (reader.readLongOrNull(offset)) as P;
     case 20:
+      return (reader.readLongOrNull(offset)) as P;
+    case 21:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -991,6 +1000,16 @@ extension PokemonQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Pokemon, Pokemon, QAfterFilterCondition> isFavEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isFav',
+        value: value,
       ));
     });
   }
@@ -3004,6 +3023,18 @@ extension PokemonQuerySortBy on QueryBuilder<Pokemon, Pokemon, QSortBy> {
     });
   }
 
+  QueryBuilder<Pokemon, Pokemon, QAfterSortBy> sortByIsFav() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFav', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Pokemon, Pokemon, QAfterSortBy> sortByIsFavDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFav', Sort.desc);
+    });
+  }
+
   QueryBuilder<Pokemon, Pokemon, QAfterSortBy> sortByMove1() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'move1', Sort.asc);
@@ -3259,6 +3290,18 @@ extension PokemonQuerySortThenBy
     });
   }
 
+  QueryBuilder<Pokemon, Pokemon, QAfterSortBy> thenByIsFav() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFav', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Pokemon, Pokemon, QAfterSortBy> thenByIsFavDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isFav', Sort.desc);
+    });
+  }
+
   QueryBuilder<Pokemon, Pokemon, QAfterSortBy> thenByIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isarId', Sort.asc);
@@ -3492,6 +3535,12 @@ extension PokemonQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Pokemon, Pokemon, QDistinct> distinctByIsFav() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isFav');
+    });
+  }
+
   QueryBuilder<Pokemon, Pokemon, QDistinct> distinctByMove1(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3635,6 +3684,12 @@ extension PokemonQueryProperty
   QueryBuilder<Pokemon, int?, QQueryOperations> hpStatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'hpStat');
+    });
+  }
+
+  QueryBuilder<Pokemon, bool, QQueryOperations> isFavProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isFav');
     });
   }
 

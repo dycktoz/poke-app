@@ -78,7 +78,7 @@ class _TabsPages extends ConsumerWidget {
           TabBar(tabs: kTabs),
           SizedBox(
             width: size.width,
-            height: size.height * 0.3,
+            height: size.height * 0.35,
             child: TabBarView(
               children: [
                 Padding(
