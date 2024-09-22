@@ -5,7 +5,6 @@ import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/side_menu.dart';
 
-import '../../core/router/app_router.dart';
 import '../providers/providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

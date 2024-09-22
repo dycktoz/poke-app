@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:poke_app/core/router/app_router.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
 import 'package:poke_app/presentation/widgets/info_pokemon_widget.dart';
@@ -21,10 +19,17 @@ class InfoScreen extends ConsumerStatefulWidget {
 }
 
 class _InfoScreenState extends ConsumerState<InfoScreen> {
+  final _scrollcontroller = ScrollController();
   @override
   void initState() {
     super.initState();
     ref.read(pokeInfoProvider.notifier).loadPokemon(widget.pokeId);
+  }
+
+  @override
+  void dispose() {
+    _scrollcontroller.dispose();
+    super.dispose();
   }
 
   @override
@@ -41,6 +46,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     return Scaffold(
         body: CustomScrollView(
       physics: const ClampingScrollPhysics(),
+      controller: _scrollcontroller,
       slivers: [
         _CustomSliverAppbar(pokemon: pokemon),
         SliverList(
