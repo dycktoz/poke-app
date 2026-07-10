@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
-import 'package:poke_app/presentation/widgets/gradient_card_widget.dart';
+import 'package:poke_app/presentation/providers/providers.dart';
 import 'package:poke_app/presentation/widgets/side_menu.dart';
-
-import '../../core/router/app_router.dart';
-import '../providers/providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -14,151 +12,296 @@ class HomeScreen extends ConsumerStatefulWidget {
   static const name = 'home-screen';
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool isLoading = false;
-  bool isLastPage = false;
+  final scrollController = ScrollController();
+  final searchController = TextEditingController();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  final scrollcontroller = ScrollController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    scrollcontroller.addListener(
-      () {
-        if ((scrollcontroller.position.pixels + 100) >=
-            scrollcontroller.position.maxScrollExtent) {
-          loadNextPage();
-        }
-      },
-    );
-    loadNextPage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(pokeListProvider.notifier).loadNextPage();
+    });
+
+    scrollController.addListener(() {
+      if ((scrollController.position.pixels + 150) >= scrollController.position.maxScrollExtent) {
+        ref.read(pokeListProvider.notifier).loadNextPage();
+      }
+    });
   }
 
   @override
   void dispose() {
-    scrollcontroller.dispose();
+    scrollController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
-  void loadNextPage() async {
-    if (isLastPage || isLastPage) return;
-    final pokes = await ref.read(pokeListProvider.notifier).loadNextPage();
-    if (pokes.isEmpty) {
-      isLastPage = true;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final pokeList = ref.watch(pokeListProvider);
-    final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
-    return Scaffold(
-      key: scaffoldKey,
-      drawer: SideMenu(
-        scaffoldKey: scaffoldKey,
-      ),
-      body: SafeArea(
-        child: isLastPage
-            ? Container()
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: CustomScrollView(
-                  controller: scrollcontroller,
-                  slivers: [
-                    SliverAppBar(
-                      backgroundColor: theme.scaffoldBackgroundColor,
-                      expandedHeight: size.height * 0.05,
-                      centerTitle: true,
-                      actions: [
-                        CircleAvatar(
-                          child: Image.network(
-                              'https://i.pinimg.com/originals/46/e7/7e/46e77e3db6a6cdce8c63a9de331f31ff.png'),
-                        )
-                      ],
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        child: Text(
-                          'Encuentra tu Pokemon',
-                          style: TextStyle(
-                              fontSize: 40, fontWeight: FontWeight.bold),
-                        ),
+  void _showSortDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final sortByNumber = ref.watch(pokeListProvider).sortByNumber;
+            return Dialog(
+              backgroundColor: const Color(0xFFDC0A2D),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                width: 250,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Sort by:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Form(
-                          key: _formKey,
-                          child: TextFormField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.search),
-                              hintText: 'Buscar',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                                borderSide: const BorderSide(
-                                    color: Colors.grey, width: 2.0),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Este campo no puede estar vacío';
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        children: [
+                          RadioListTile<bool>(
+                            value: true,
+                            groupValue: sortByNumber,
+                            activeColor: const Color(0xFFDC0A2D),
+                            title: const Text('Number', style: TextStyle(color: Colors.black)),
+                            onChanged: (val) {
+                              if (val != null) {
+                                ref.read(pokeListProvider.notifier).updateSorting(val);
+                                Navigator.pop(context);
                               }
-                              return null;
                             },
                           ),
-                        ),
-                      ),
-                    ),
-                    SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final pokemon = pokeList[index];
-
-                          return CardPoke(index, pokemon);
-                        },
-                        childCount: pokeList.length,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.0,
-                        mainAxisSpacing: 12.0,
+                          RadioListTile<bool>(
+                            value: false,
+                            groupValue: sortByNumber,
+                            activeColor: const Color(0xFFDC0A2D),
+                            title: const Text('Name', style: TextStyle(color: Colors.black)),
+                            onChanged: (val) {
+                              if (val != null) {
+                                ref.read(pokeListProvider.notifier).updateSorting(val);
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pokeState = ref.watch(pokeListProvider);
+    final authState = ref.watch(authProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isLoggedIn = authState.status == AuthStatus.authenticated;
+    final user = authState.user;
+
+    final avatarUrl = isLoggedIn && user != null
+        ? 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${user.avatarPokemonId}.png'
+        : 'https://i.pinimg.com/originals/46/e7/7e/46e77e3db6a6cdce8c63a9de331f31ff.png';
+
+    return Scaffold(
+      key: scaffoldKey,
+      drawer: SideMenu(scaffoldKey: scaffoldKey),
+      body: Column(
+        children: [
+          // 1. Red Header Block
+          Container(
+            color: const Color(0xFFDC0A2D),
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                      onPressed: () => scaffoldKey.currentState?.openDrawer(),
+                    ),
+                    const Text(
+                      'Pokédex',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Spacer(),
+                    // Top-right Trainer avatar shortcut
+                    GestureDetector(
+                      onTap: () {
+                        if (isLoggedIn) {
+                          context.push('/profile');
+                        } else {
+                          context.push('/login');
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: CachedNetworkImage(
+                            imageUrl: avatarUrl,
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => const SizedBox(
+                              width: 15,
+                              height: 15,
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFFDC0A2D)),
+                            ),
+                            errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey, size: 20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    // Search Bar
+                    Expanded(
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: searchController,
+                          style: const TextStyle(color: Colors.black87),
+                          onChanged: (query) {
+                            ref.read(pokeListProvider.notifier).updateSearch(query);
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Buscar',
+                            hintStyle: TextStyle(color: Colors.grey.shade500),
+                            prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Sort Button
+                    GestureDetector(
+                      onTap: _showSortDialog,
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            pokeState.sortByNumber ? '#' : 'AZ',
+                            style: const TextStyle(
+                              color: Color(0xFFDC0A2D),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          // 2. Pokemon Grid Section
+          Expanded(
+            child: pokeState.pokemons.isEmpty && pokeState.isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFFDC0A2D)))
+                : pokeState.pokemons.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No se encontraron Pokémon',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      )
+                    : GridView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(12),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.85,
+                        ),
+                        itemCount: pokeState.pokemons.length + (pokeState.isLoading ? 3 : 0),
+                        itemBuilder: (context, index) {
+                          if (index >= pokeState.pokemons.length) {
+                            return const LoadingPlaceholderCard();
+                          }
+                          
+                          final pokemon = pokeState.pokemons[index];
+                          return PokemonGridCard(pokemon: pokemon);
+                        },
+                      ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class CardPoke extends ConsumerStatefulWidget {
-  const CardPoke(this.index, this.pokemon, {super.key});
-  final int index;
+class PokemonGridCard extends StatefulWidget {
   final Pokemon pokemon;
 
+  const PokemonGridCard({super.key, required this.pokemon});
+
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CardPokeState();
+  State<PokemonGridCard> createState() => _PokemonGridCardState();
 }
 
-class _CardPokeState extends ConsumerState<CardPoke> {
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   setState(() {
-  //     refreshScreen();
-  //   });
-  // }
+class _PokemonGridCardState extends State<PokemonGridCard> {
+  double _scale = 1.0;
+
+  String _formatNumber(int id) {
+    return '#${id.toString().padLeft(3, '0')}';
+  }
 
   String _capitalize(String text) {
     if (text.isEmpty) return text;
@@ -167,93 +310,120 @@ class _CardPokeState extends ConsumerState<CardPoke> {
 
   @override
   Widget build(BuildContext context) {
-    final isFavoriteFuture = ref.watch(isFavoriteProvider(widget.pokemon));
-
     final theme = Theme.of(context);
-    return InkWell(
+    final isDark = theme.brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _scale = 0.92),
+      onTapUp: (_) => setState(() => _scale = 1.0),
+      onTapCancel: () => setState(() => _scale = 1.0),
       onTap: () {
-        context.push('/movie/${widget.index + 1}');
+        context.push('/pokemon/${widget.pokemon.id}');
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: CustomGradient(
-          colors: const [Colors.blue, Color.fromARGB(255, 69, 69, 61)],
-          end: Alignment.bottomRight,
-          begin: Alignment.topCenter,
-          stops: const [
-            0.6,
-            1.0,
-          ],
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+        child: Card(
+          margin: EdgeInsets.zero,
+          elevation: 1,
+          color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF7F7F7),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isDark ? Colors.white12 : Colors.grey.shade300,
+              width: 1,
+            ),
+          ),
           child: Stack(
             children: [
-              const CustomGradient(
-                colors: [
-                  Colors.transparent,
-                  Color.fromARGB(50, 105, 104, 101),
-                ],
-                end: Alignment.topLeft,
-                begin: Alignment.bottomRight,
-                stops: [
-                  0.8,
-                  1.0,
-                ],
-              ),
+              // Number Top Right
               Positioned(
-                left: 8,
-                top: 8,
-                child: isFavoriteFuture.when(
-                  data: (isFav) => isFav
-                      ? const Icon(Icons.favorite_rounded, color: Colors.red)
-                      : const Icon(Icons.favorite_border),
-                  error: (_, __) => throw UnimplementedError(),
-                  loading: () =>
-                      const CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Image.network(
-                    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${widget.index + 1}.png',
-                    errorBuilder: (BuildContext context, Object error,
-                        StackTrace? stackTrace) {
-                  return const Center(
-                    child: Text(
-                      'Error al cargar la imagen',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  );
-                }, loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child; // La imagen ya está cargada
-                  }
-                  return Center(
-                      child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            (loadingProgress.expectedTotalBytes ?? 1)
-                        : null,
-                  ));
-                }),
-              ),
-              Positioned(
-                left: 8,
-                bottom: 8,
-                child: Text(
-                  _capitalize(widget.pokemon.name),
-                  style: theme.textTheme.titleLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const Positioned(
                 right: 8,
-                bottom: 8,
-                child: Icon(
-                  Icons.arrow_circle_right_outlined,
-                  size: 32,
+                top: 6,
+                child: Text(
+                  _formatNumber(widget.pokemon.id),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white54 : Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              
+              // Image & Name
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 16, 6, 6),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Hero(
+                          tag: 'pokemon-image-${widget.pokemon.id}',
+                          child: CachedNetworkImage(
+                            imageUrl: widget.pokemon.imageUrl,
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Icon(
+                              Icons.error_outline,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _capitalize(widget.pokemon.name),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingPlaceholderCard extends StatelessWidget {
+  const LoadingPlaceholderCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: isDark ? const Color(0xFF1E1E1E).withOpacity(0.5) : Colors.grey.shade200,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFFDC0A2D),
           ),
         ),
       ),

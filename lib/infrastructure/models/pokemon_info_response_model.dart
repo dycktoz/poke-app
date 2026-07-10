@@ -13,7 +13,7 @@ String pokemonInfoResponseModelToJson(PokemonInfoResponseModel data) =>
 class PokemonInfoResponseModel {
   final List<Ability> abilities;
   final int baseExperience;
-  final Cries cries;
+  final Cries? cries;
   final List<Species> forms;
   final List<GameIndex> gameIndices;
   final int height;
@@ -35,7 +35,7 @@ class PokemonInfoResponseModel {
   PokemonInfoResponseModel({
     required this.abilities,
     required this.baseExperience,
-    required this.cries,
+    this.cries,
     required this.forms,
     required this.gameIndices,
     required this.height,
@@ -60,7 +60,7 @@ class PokemonInfoResponseModel {
         abilities: List<Ability>.from(
             json["abilities"].map((x) => Ability.fromJson(x))),
         baseExperience: json["base_experience"],
-        cries: Cries.fromJson(json["cries"]),
+        cries: json["cries"] == null ? null : Cries.fromJson(json["cries"]),
         forms:
             List<Species>.from(json["forms"].map((x) => Species.fromJson(x))),
         gameIndices: List<GameIndex>.from(
@@ -85,7 +85,7 @@ class PokemonInfoResponseModel {
   Map<String, dynamic> toJson() => {
         "abilities": List<dynamic>.from(abilities.map((x) => x.toJson())),
         "base_experience": baseExperience,
-        "cries": cries.toJson(),
+        "cries": cries?.toJson(),
         "forms": List<dynamic>.from(forms.map((x) => x.toJson())),
         "game_indices": List<dynamic>.from(gameIndices.map((x) => x.toJson())),
         "height": height,
@@ -151,17 +151,17 @@ class Species {
 }
 
 class Cries {
-  final String latest;
-  final String legacy;
+  final String? latest;
+  final String? legacy;
 
   Cries({
-    required this.latest,
-    required this.legacy,
+    this.latest,
+    this.legacy,
   });
 
   factory Cries.fromJson(Map<String, dynamic> json) => Cries(
-        latest: json["latest"],
-        legacy: json["legacy"],
+        latest: json["latest"] as String?,
+        legacy: json["legacy"] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -328,27 +328,27 @@ class Other {
   final DreamWorld dreamWorld;
   final Home home;
   final OfficialArtwork officialArtwork;
-  final Sprites showdown;
+  final Sprites? showdown;
 
   Other({
     required this.dreamWorld,
     required this.home,
     required this.officialArtwork,
-    required this.showdown,
+    this.showdown,
   });
 
   factory Other.fromJson(Map<String, dynamic> json) => Other(
         dreamWorld: DreamWorld.fromJson(json["dream_world"]),
         home: Home.fromJson(json["home"]),
         officialArtwork: OfficialArtwork.fromJson(json["official-artwork"]),
-        showdown: Sprites.fromJson(json["showdown"]),
+        showdown: json["showdown"] == null ? null : Sprites.fromJson(json["showdown"]),
       );
 
   Map<String, dynamic> toJson() => {
         "dream_world": dreamWorld.toJson(),
         "home": home.toJson(),
         "official-artwork": officialArtwork.toJson(),
-        "showdown": showdown.toJson(),
+        "showdown": showdown?.toJson(),
       };
 }
 
@@ -389,9 +389,7 @@ class Sprites {
         frontShiny: json["front_shiny"],
         frontShinyFemale: json["front_shiny_female"],
         other: json["other"] == null ? null : Other.fromJson(json["other"]),
-        versions: json["versions"] == null
-            ? null
-            : Versions.fromJson(json["versions"]),
+        versions: null,
         animated: json["animated"] == null
             ? null
             : Sprites.fromJson(json["animated"]),

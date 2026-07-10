@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/domain/repositories/local_storage_repository.dart';
-import 'package:poke_app/presentation/providers/providers.dart';
-import 'package:poke_app/presentation/providers/storage/local_storage_provider.dart';
+import 'local_storage_provider.dart';
 
 final favoritePokemonsProvider =
-    StateNotifierProvider<StoragePokemonsNotifier, Map<int, Pokemon>>(
+    StateNotifierProvider<StoragePokemonsNotifier, Map<String, Pokemon>>(
   (ref) {
     final localStorageRepository = ref.watch(localStorageRepositoryProvider);
     return StoragePokemonsNotifier(
@@ -13,32 +12,32 @@ final favoritePokemonsProvider =
   },
 );
 
-class StoragePokemonsNotifier extends StateNotifier<Map<int, Pokemon>> {
+class StoragePokemonsNotifier extends StateNotifier<Map<String, Pokemon>> {
   StoragePokemonsNotifier({required this.localStorageRepository}) : super({});
 
-  int page = 0;
   final LocalStorageRepository localStorageRepository;
 
-  Future<List<Pokemon>> loadNextPage() async {
-    final pokemons =
-        await localStorageRepository.loadPokemons(offset: page * 10, limit: 20);
-    page++;
-    final tempPokemonsMap = <int, Pokemon>{};
+  Future<List<Pokemon>> loadFavorites() async {
+    final pokemons = await localStorageRepository.loadFavorites();
+    final tempPokemonsMap = <String, Pokemon>{};
     for (final poke in pokemons) {
-      tempPokemonsMap[poke.isarId] = poke;
+      tempPokemonsMap[poke.name.toLowerCase()] = poke;
     }
-    state = {...state, ...tempPokemonsMap};
+    state = tempPokemonsMap;
     return pokemons;
   }
 
   Future<void> toggleFavorite(Pokemon pokemon) async {
     await localStorageRepository.toggleFavorite(pokemon);
-    final bool isPokeInFavorites = state[pokemon.isarId] != null;
-    if (isPokeInFavorites) {
-      state.remove(pokemon.isarId);
-      state = {...state};
+    final key = pokemon.name.toLowerCase();
+    
+    // Create a new map to properly trigger Riverpod updates
+    final temp = Map<String, Pokemon>.from(state);
+    if (temp.containsKey(key)) {
+      temp.remove(key);
+      state = temp;
     } else {
-      state = {...state, pokemon.isarId: pokemon};
+      state = {...state, key: pokemon.copyWith(isFavorite: true)};
     }
   }
 }

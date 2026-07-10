@@ -3,17 +3,18 @@ import 'package:poke_app/domain/entities/pokemon.dart';
 import 'package:poke_app/domain/repositories/local_storage_repository.dart';
 
 class LocalStorageRepositoryImpl extends LocalStorageRepository {
-  LocalStorageRepositoryImpl(this.datasource);
   final LocalStorageDatasource datasource;
 
+  LocalStorageRepositoryImpl(this.datasource);
+
   @override
-  Future<bool> isPokeFavorite(Pokemon pokemon) {
-    return datasource.isPokeFavorite(pokemon);
+  Future<bool> isPokeFavorite(String name) {
+    return datasource.isPokeFavorite(name);
   }
 
   @override
-  Future<List<Pokemon>> loadPokemons({int limit = 10, int offset = 0}) {
-    return datasource.loadMovies(limit: limit, offset: offset);
+  Future<List<Pokemon>> loadFavorites() {
+    return datasource.loadFavorites();
   }
 
   @override

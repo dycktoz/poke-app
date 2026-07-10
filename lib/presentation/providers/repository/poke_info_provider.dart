@@ -22,7 +22,11 @@ class PokeMapNotifier extends StateNotifier<Map<String, Pokemon>> {
   Future<void> loadPokemon(String pokeId) async {
     if (state[pokeId] != null) return;
 
-    final pokemon = await getPoke(id: pokeId);
-    state = {...state, pokeId: pokemon};
+    try {
+      final pokemon = await getPoke(id: pokeId);
+      state = {...state, pokeId: pokemon};
+    } catch (e) {
+      print('Error loading pokemon info: $e');
+    }
   }
 }

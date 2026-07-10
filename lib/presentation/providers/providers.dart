@@ -5,3 +5,6 @@ export 'storage/favorite_pokemons_provider.dart';
 export 'storage/is_favorite_provider.dart';
 export 'storage/local_storage_provider.dart';
 export 'theme/theme_provider.dart';
+export 'search/search_input.dart';
+export 'auth/auth_provider.dart';
+export 'auth/login_form_inputs.dart';
