@@ -45,12 +45,6 @@ lib/
 *   Consumo y procesamiento recursivo del árbol evolutivo de PokeAPI. Soporta tanto cadenas lineales simples (ej. Bulbasaur) como ramificadas (ej. Eevee).
 *   Muestra un recorrido visual por las fases evolutivas en los detalles del Pokémon, permitiendo al usuario saltar directamente al detalle de cualquier miembro de la cadena al tocar su miniatura.
 
-### 4. 🎨 Estética Premium y Microanimaciones
-*   **Efecto de Presión Escalar:** Las tarjetas de la pantalla de inicio se encogen levemente (`scale: 0.92`) con una animación suave de 100ms al ser presionadas, ofreciendo feedback táctil inmediato.
-*   **Hero Transitions:** Las imágenes de los Pokémon vuelan y se expanden de forma orgánica entre la lista principal y la vista de detalles.
-*   **Carga de Estadísticas Animada:** Las barras de combate base se llenan de forma progresiva con una animación elástica al abrir la pantalla de detalles.
-*   **Diseño Fiel a Figma:** Cabecera roja estilizada, barra de búsqueda redondeada, selector de ordenación flotante (por Número o Nombre A-Z), marca de agua de Pokebola pintada mediante canvas (`CustomPaint`) y adaptabilidad dinámica de color de fondo según el tipo primario del Pokémon.
-
 ---
 
 ## 🛠️ Tecnologías Utilizadas
